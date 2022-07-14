@@ -11,6 +11,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      platform.hasMany(models.game, {
+        as: "gamePlatform",
+        foreignKey: {
+          name: "platform"
+        }
+      });
     }
   }
   platform.init({

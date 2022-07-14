@@ -11,6 +11,33 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      game.hasMany(models.reviews, {
+        as: "reviews",
+        foreignKey: {
+          name: "gameId"
+        }
+      });
+
+      game.belongsTo(models.user, {
+        as: "createdBy",
+        foreignKey: {
+          name: "createdBy"
+        }
+      });
+
+      game.belongsTo(models.genre, {
+        as: "genre",
+        foreignKey: {
+          name: "genre"
+        }
+      });
+
+      game.belongsTo(models.platform, {
+        as: "platform",
+        foreignKey: {
+          name: "platform"
+        }
+      });
     }
   }
   game.init({
