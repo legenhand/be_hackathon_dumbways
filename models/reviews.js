@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       reviews.belongsTo(models.user, {
-        as: "createdBy",
+        as: "creator",
         foreignKey: {
           name: "createdBy"
         }

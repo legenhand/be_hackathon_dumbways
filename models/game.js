@@ -19,21 +19,21 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       game.belongsTo(models.user, {
-        as: "createdBy",
+        as: "creator",
         foreignKey: {
           name: "createdBy"
         }
       });
 
       game.belongsTo(models.genre, {
-        as: "genre",
+        as: "genreName",
         foreignKey: {
           name: "genre"
         }
       });
 
       game.belongsTo(models.platform, {
-        as: "platform",
+        as: "platformName",
         foreignKey: {
           name: "platform"
         }

@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   platform.init({
     name: DataTypes.STRING,
-    type: DataTypes.ENUM
+    type: DataTypes.ENUM("Download","Url")
   }, {
     sequelize,
     modelName: 'platform',
