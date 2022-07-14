@@ -1,0 +1,5 @@
+npx sequelize-cli model:generate --name user --attributes username:string,email:string,password:string
+npx sequelize-cli model:generate --name genre --attributes name:string
+npx sequelize-cli model:generate --name platform --attributes name:string,type:enum
+npx sequelize-cli model:generate --name reviews --attributes gameId:integer,rating:integer,comment:text,createdBy:integer
+npx sequelize-cli model:generate --name game --attributes title:string,description:text,genre:integer,platform:integer,gameUrl:string,coverImage:string,screenshots:string,createdBy:integer
