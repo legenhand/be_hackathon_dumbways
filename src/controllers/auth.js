@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 exports.register = async(req, res) => {
     // our validation schema here
     const schema = Joi.object({
-        name: Joi.string().min(3).required(),
+        username: Joi.string().min(3).required(),
         email: Joi.string().email().min(6).required(),
         password: Joi.string().min(6).required(),
     });
@@ -73,7 +73,7 @@ exports.login = async(req, res) => {
     try {
         // our validation schema here
         const schema = Joi.object({
-            email: Joi.string().email().min(6).required(),
+            username: Joi.string().min(3).required(),
             password: Joi.string().min(6).required(),
         });
 
@@ -90,7 +90,7 @@ exports.login = async(req, res) => {
 
         const userExist = await user.findOne({
             where: {
-                email: req.body.email,
+                username: req.body.username,
             },
             attributes: {
                 exclude: ['createdAt', 'updatedAt'],
@@ -100,7 +100,7 @@ exports.login = async(req, res) => {
         if (!userExist) {
             return res.status(404).send({
                 status: 'failed',
-                message: `Email: ${req.body.email} not found`,
+                message: `username: ${req.body.username} not found`,
             });
         }
 
@@ -122,12 +122,12 @@ exports.login = async(req, res) => {
         const token = jwt.sign({ id: userExist.id }, process.env.TOKEN_KEY);
         res.status(200).send({
             status: 'success...',
-            data: {
+            user: {
                 id: userExist.id,
-                name: userExist.name,
+                username: userExist.username,
                 email: userExist.email,
-                token,
             },
+            token,
         });
     } catch (error) {
         console.log(error);
@@ -158,12 +158,10 @@ exports.checkAuth = async(req, res) => {
         }
         res.send({
             status: 'success...',
-            data: {
-                user: {
-                    id: dataUser.id,
-                    name: dataUser.name,
-                    email: dataUser.email,
-                },
+            user: {
+                id: dataUser.id,
+                username: dataUser.username,
+                email: dataUser.email,
             },
         });
     } catch (error) {
