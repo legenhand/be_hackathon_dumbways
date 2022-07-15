@@ -5,10 +5,10 @@ const { auth } = require('../middlewares/auth');
 const router = express.Router();
 
 // Route Register
-router.post('/register', register);
+router.post('/auth/register', register);
 
 // Route Login
-router.post('/login', login);
+router.post('/auth/login', login);
 
 // Route Check Auth
 router.get('/check-auth', auth, checkAuth);
