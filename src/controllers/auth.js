@@ -38,13 +38,31 @@ exports.register = async(req, res) => {
             });
             return;
         }
+
+        const isUsernameExists = await user.findOne({
+            where: {
+                username: req.body.username,
+            },
+            attributes: {
+                exclude: ['createdAt', 'updatedAt'],
+            },
+        });
+
+        if (isUsernameExists) {
+            res.status(500).send({
+                status: 'failed',
+                message: 'Username Already Registered!',
+            });
+            return;
+        }
+
         // we generate salt (random value) with 10 rounds
         const salt = await bcrypt.genSalt(10);
         // we hash password from request with salt
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
         const newUser = await user.create({
-            username: req.body.name,
+            username: req.body.username,
             email: req.body.email,
             password: hashedPassword,
         });
