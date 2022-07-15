@@ -3,7 +3,7 @@ const { user, profile } = require('../../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-exports.register = async (req, res) => {
+exports.register = async(req, res) => {
     // our validation schema here
     const schema = Joi.object({
         name: Joi.string().min(3).required(),
@@ -44,20 +44,21 @@ exports.register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
         const newUser = await user.create({
-            name: req.body.name,
+            username: req.body.name,
             email: req.body.email,
             password: hashedPassword,
         });
-
+        console.log(newUser);
         // generate token
         const token = jwt.sign({ id: newUser.id }, process.env.TOKEN_KEY);
         res.status(200).send({
             status: 'success...',
-            data: {
-                name: newUser.name,
+            user: {
+                id: newUser.id,
+                username: newUser.username,
                 email: newUser.email,
-                token,
             },
+            token
         });
     } catch (error) {
         console.log(error);
@@ -68,7 +69,7 @@ exports.register = async (req, res) => {
     }
 };
 
-exports.login = async (req, res) => {
+exports.login = async(req, res) => {
     try {
         // our validation schema here
         const schema = Joi.object({
@@ -137,7 +138,7 @@ exports.login = async (req, res) => {
     }
 };
 
-exports.checkAuth = async (req, res) => {
+exports.checkAuth = async(req, res) => {
     try {
         const id = req.user.id;
 
