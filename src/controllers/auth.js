@@ -1,8 +1,7 @@
-const Joi = require("joi");
-const {user, profile} = require("../../models");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
+const Joi = require('joi');
+const { user, profile } = require('../../models');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
     // our validation schema here
@@ -25,19 +24,19 @@ exports.register = async (req, res) => {
     try {
         const isEmailExists = await user.findOne({
             where: {
-                email: req.body.email
+                email: req.body.email,
             },
             attributes: {
-                exclude: ["createdAt", "updatedAt"],
+                exclude: ['createdAt', 'updatedAt'],
             },
-        })
+        });
 
-        if(isEmailExists){
+        if (isEmailExists) {
             res.status(500).send({
-                status: "failed",
-                message: "email already registered!"
+                status: 'failed',
+                message: 'email already registered!',
             });
-            return
+            return;
         }
         // we generate salt (random value) with 10 rounds
         const salt = await bcrypt.genSalt(10);
@@ -50,11 +49,10 @@ exports.register = async (req, res) => {
             password: hashedPassword,
         });
 
-
         // generate token
         const token = jwt.sign({ id: newUser.id }, process.env.TOKEN_KEY);
         res.status(200).send({
-            status: "success...",
+            status: 'success...',
             data: {
                 name: newUser.name,
                 email: newUser.email,
@@ -64,8 +62,8 @@ exports.register = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).send({
-            status: "failed",
-            message: "Server Error",
+            status: 'failed',
+            message: 'Server Error',
         });
     }
 };
@@ -89,38 +87,40 @@ exports.login = async (req, res) => {
                 },
             });
 
-
         const userExist = await user.findOne({
             where: {
                 email: req.body.email,
             },
             attributes: {
-                exclude: ["createdAt", "updatedAt"],
+                exclude: ['createdAt', 'updatedAt'],
             },
         });
 
-        if(!userExist){
+        if (!userExist) {
             return res.status(404).send({
-                status: "failed",
+                status: 'failed',
                 message: `Email: ${req.body.email} not found`,
             });
         }
 
         // compare password between entered from client and from database
-        const isValid = await bcrypt.compare(req.body.password, userExist.password);
+        const isValid = await bcrypt.compare(
+            req.body.password,
+            userExist.password
+        );
 
         // check if not valid then return response with status 400 (bad request)
         if (!isValid) {
             return res.status(400).send({
-                status: "failed",
-                message: "credential is invalid",
+                status: 'failed',
+                message: 'credential is invalid',
             });
         }
 
         // generate token
         const token = jwt.sign({ id: userExist.id }, process.env.TOKEN_KEY);
-       res.status(200).send({
-            status: "success...",
+        res.status(200).send({
+            status: 'success...',
             data: {
                 id: userExist.id,
                 name: userExist.name,
@@ -131,8 +131,8 @@ exports.login = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).send({
-            status: "failed",
-            message: "Server Error",
+            status: 'failed',
+            message: 'Server Error',
         });
     }
 };
@@ -146,17 +146,17 @@ exports.checkAuth = async (req, res) => {
                 id,
             },
             attributes: {
-                exclude: ["createdAt", "updatedAt", "password"],
+                exclude: ['createdAt', 'updatedAt', 'password'],
             },
         });
 
         if (!dataUser) {
             return res.status(404).send({
-                status: "failed",
+                status: 'failed',
             });
         }
         res.send({
-            status: "success...",
+            status: 'success...',
             data: {
                 user: {
                     id: dataUser.id,
@@ -168,8 +168,8 @@ exports.checkAuth = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status({
-            status: "failed",
-            message: "Server Error",
+            status: 'failed',
+            message: 'Server Error',
         });
     }
 };
