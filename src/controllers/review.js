@@ -3,8 +3,6 @@ const Joi = require('joi');
 
 exports.addReview = async(req, res) => {
     // our validation schema here
-    console.log(req.body);
-    console.log(req.params);
     const { gameId } = req.params;
     const createdBy = req.user.id;
     const schema = Joi.object({
