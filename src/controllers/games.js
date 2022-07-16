@@ -192,6 +192,70 @@ exports.getGameById = async(req, res) => {
     }
 }
 
+exports.getGameByUserId = async(req, res) => {
+    try {
+        const id = req.user.id;
+        let data = await game.findAll({
+            where: {
+                createdBy: id
+            },
+            include: [{
+                    model: genre,
+                    as: "genreName",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    },
+                },
+                {
+                    model: platform,
+                    as: "platformName",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    }
+                },
+                {
+                    model: user,
+                    as: "creator",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt", "password"]
+                    }
+                }
+            ],
+            attributes: {
+                exclude: ["createdAt", "updatedAt", "genre", "platform", "createdBy"],
+            },
+        });
+        data = JSON.parse(JSON.stringify(data));
+
+        data = JSON.parse(JSON.stringify(data));
+        data = data.map(item => {
+            let newItem = {
+                ...item,
+                coverImage: process.env.PATH_FILE + item.coverImage,
+                screenshots: item.screenshots.split(";").filter(Boolean).map(i => process.env.PATH_FILE + i),
+                genre: item.genreName,
+                platform: item.platformName,
+                createdBy: item.creator,
+            }
+            delete item.genreName;
+            delete item.platformName;
+            delete item.creator
+            return newItem;
+        });
+
+        res.send({
+            status: "success...",
+            data: data
+        });
+    } catch (e) {
+        console.log(e);
+        res.status(500).send({
+            status: "failed",
+            message: "server error"
+        })
+    }
+}
+
 // update game by ID = url /Game/:id method patch 
 exports.updateGame = async(req, res) => {
     try {
@@ -283,7 +347,6 @@ exports.updateGame = async(req, res) => {
         })
     }
 }
-
 
 // delete game by ID = url /game/:id method delete
 exports.deleteGame = async(req, res) => {
