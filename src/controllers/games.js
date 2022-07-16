@@ -1,4 +1,4 @@
-const { game, genre, platform, user } = require('../../models');
+const { game, genre, platform, user, Sequelize } = require('../../models');
 
 
 // POST addGames url /game method POST
@@ -75,6 +75,13 @@ exports.addGames = async(req, res) => {
 // Get all games = url /Games method Get
 exports.getAllGames = async(req, res) => {
     try {
+        let filter = {}
+        if (req.query.genreId) {
+            filter.genre = req.query.genreId
+        }
+        if (req.query.platformId) {
+            filter.platform = req.query.platformId
+        }
         let data = await game.findAll({
             include: [{
                     model: genre,
@@ -100,7 +107,8 @@ exports.getAllGames = async(req, res) => {
             ],
             attributes: {
                 exclude: ["createdAt", "updatedAt", "genre", "platform", "createdBy"],
-            }
+            },
+            where: filter
         });
         data = JSON.parse(JSON.stringify(data));
         data = data.map(item => {
@@ -275,7 +283,7 @@ exports.updateGame = async(req, res) => {
 
         if (data.createdBy != req.user.id) {
             return res.send({
-                message: `user id : ${req.user.id} cannot update game with id : ${id}`
+                message: `cannot update this game`
             })
         }
         let screenshots = '';
@@ -369,7 +377,7 @@ exports.deleteGame = async(req, res) => {
         if (data.createdBy != req.user.id) {
             return res.send({
                 status: 'restricted',
-                message: `user id : ${req.user.id} cannot delete game with id : ${id}`
+                message: `cannot delete this game `
             })
         }
 
@@ -390,3 +398,5 @@ exports.deleteGame = async(req, res) => {
         })
     }
 }
+
+// Filter game with genre and platform
