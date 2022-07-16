@@ -31,6 +31,12 @@ exports.getGenreById = async(req, res) => {
                 id: id,
             }
         });
+        if (!data) {
+            return res.status(404).send({
+                status: "Not Found",
+                message: "not found"
+            })
+        }
         res.send({
             status: "success",
             data
