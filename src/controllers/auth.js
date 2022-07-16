@@ -1,13 +1,12 @@
-const Joi = require("joi");
-const {user, profile} = require("../../models");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const Joi = require('joi');
+const { user } = require('../../models');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-
-exports.register = async (req, res) => {
+exports.register = async(req, res) => {
     // our validation schema here
     const schema = Joi.object({
-        name: Joi.string().min(3).required(),
+        username: Joi.string().min(3).required(),
         email: Joi.string().email().min(6).required(),
         password: Joi.string().min(6).required(),
     });
@@ -25,56 +24,74 @@ exports.register = async (req, res) => {
     try {
         const isEmailExists = await user.findOne({
             where: {
-                email: req.body.email
+                email: req.body.email,
             },
             attributes: {
-                exclude: ["createdAt", "updatedAt"],
+                exclude: ['createdAt', 'updatedAt'],
             },
-        })
+        });
 
-        if(isEmailExists){
+        if (isEmailExists) {
             res.status(500).send({
-                status: "failed",
-                message: "email already registered!"
+                status: 'failed',
+                message: 'email already registered!',
             });
-            return
+            return;
         }
+
+        const isUsernameExists = await user.findOne({
+            where: {
+                username: req.body.username,
+            },
+            attributes: {
+                exclude: ['createdAt', 'updatedAt'],
+            },
+        });
+
+        if (isUsernameExists) {
+            res.status(500).send({
+                status: 'failed',
+                message: 'Username Already Registered!',
+            });
+            return;
+        }
+
         // we generate salt (random value) with 10 rounds
         const salt = await bcrypt.genSalt(10);
         // we hash password from request with salt
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
         const newUser = await user.create({
-            name: req.body.name,
+            username: req.body.username,
             email: req.body.email,
             password: hashedPassword,
         });
-
-
+        console.log(newUser);
         // generate token
         const token = jwt.sign({ id: newUser.id }, process.env.TOKEN_KEY);
         res.status(200).send({
-            status: "success...",
-            data: {
-                name: newUser.name,
+            status: 'success...',
+            user: {
+                id: newUser.id,
+                username: newUser.username,
                 email: newUser.email,
-                token,
             },
+            token
         });
     } catch (error) {
         console.log(error);
         res.status(500).send({
-            status: "failed",
-            message: "Server Error",
+            status: 'failed',
+            message: 'Server Error',
         });
     }
 };
 
-exports.login = async (req, res) => {
+exports.login = async(req, res) => {
     try {
         // our validation schema here
         const schema = Joi.object({
-            email: Joi.string().email().min(6).required(),
+            username: Joi.string().min(3).required(),
             password: Joi.string().min(6).required(),
         });
 
@@ -89,55 +106,57 @@ exports.login = async (req, res) => {
                 },
             });
 
-
         const userExist = await user.findOne({
             where: {
-                email: req.body.email,
+                username: req.body.username,
             },
             attributes: {
-                exclude: ["createdAt", "updatedAt"],
+                exclude: ['createdAt', 'updatedAt'],
             },
         });
 
-        if(!userExist){
+        if (!userExist) {
             return res.status(404).send({
-                status: "failed",
-                message: `Email: ${req.body.email} not found`,
+                status: 'failed',
+                message: `username: ${req.body.username} not found`,
             });
         }
 
         // compare password between entered from client and from database
-        const isValid = await bcrypt.compare(req.body.password, userExist.password);
+        const isValid = await bcrypt.compare(
+            req.body.password,
+            userExist.password
+        );
 
         // check if not valid then return response with status 400 (bad request)
         if (!isValid) {
             return res.status(400).send({
-                status: "failed",
-                message: "credential is invalid",
+                status: 'failed',
+                message: 'credential is invalid',
             });
         }
 
         // generate token
         const token = jwt.sign({ id: userExist.id }, process.env.TOKEN_KEY);
-       res.status(200).send({
-            status: "success...",
-            data: {
+        res.status(200).send({
+            status: 'success...',
+            user: {
                 id: userExist.id,
-                name: userExist.name,
+                username: userExist.username,
                 email: userExist.email,
-                token,
             },
+            token,
         });
     } catch (error) {
         console.log(error);
         res.status(500).send({
-            status: "failed",
-            message: "Server Error",
+            status: 'failed',
+            message: 'Server Error',
         });
     }
 };
 
-exports.checkAuth = async (req, res) => {
+exports.checkAuth = async(req, res) => {
     try {
         const id = req.user.id;
 
@@ -146,30 +165,28 @@ exports.checkAuth = async (req, res) => {
                 id,
             },
             attributes: {
-                exclude: ["createdAt", "updatedAt", "password"],
+                exclude: ['createdAt', 'updatedAt', 'password'],
             },
         });
 
         if (!dataUser) {
             return res.status(404).send({
-                status: "failed",
+                status: 'failed',
             });
         }
         res.send({
-            status: "success...",
-            data: {
-                user: {
-                    id: dataUser.id,
-                    name: dataUser.name,
-                    email: dataUser.email,
-                },
+            status: 'success...',
+            user: {
+                id: dataUser.id,
+                username: dataUser.username,
+                email: dataUser.email,
             },
         });
     } catch (error) {
         console.log(error);
         res.status({
-            status: "failed",
-            message: "Server Error",
+            status: 'failed',
+            message: 'Server Error',
         });
     }
 };
