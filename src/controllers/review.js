@@ -209,3 +209,46 @@ exports.updateReview = async(req, res) => {
         });
     }
 }
+
+
+exports.deleteReview = async(req, res) => {
+    try {
+        const { id } = req.params;
+
+        let data = await reviews.findOne({
+            where: {
+                id: id
+            },
+        });
+
+        if (!data) {
+            return res.status(404).send({
+                status: 'not found',
+                message: `review with ID: ${id} not found!`
+            })
+        }
+
+        if (data.createdBy != req.user.id) {
+            return res.status(403).send({
+                status: 'restricted',
+                message: `cannot delete this reviews `
+            })
+        }
+
+        await reviews.destroy({
+            where: {
+                id: id
+            }
+        });
+        res.send({
+            status: "success...",
+            data: "reviews successfully deleted"
+        });
+    } catch (e) {
+        console.log(e);
+        res.status(500).send({
+            status: "failed",
+            message: "server error"
+        })
+    }
+}
