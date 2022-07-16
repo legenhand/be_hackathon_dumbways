@@ -38,21 +38,18 @@ module.exports = (sequelize, DataTypes) => {
             });
         }
     }
-    game.init(
-        {
-            title: DataTypes.STRING,
-            description: DataTypes.TEXT,
-            genre: DataTypes.INTEGER,
-            platform: DataTypes.INTEGER,
-            gameUrl: DataTypes.STRING,
-            coverImage: DataTypes.STRING,
-            screenshots: DataTypes.STRING,
-            createdBy: DataTypes.INTEGER,
-        },
-        {
-            sequelize,
-            modelName: 'game',
-        }
-    );
+    game.init({
+        title: DataTypes.STRING,
+        description: DataTypes.TEXT,
+        genre: DataTypes.INTEGER,
+        platform: DataTypes.INTEGER,
+        gameUrl: DataTypes.STRING,
+        coverImage: DataTypes.STRING,
+        screenshots: DataTypes.STRING,
+        createdBy: DataTypes.INTEGER,
+    }, {
+        sequelize,
+        modelName: 'game',
+    });
     return game;
 };
