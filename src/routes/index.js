@@ -1,7 +1,7 @@
 const express = require('express');
 const { login, register, checkAuth } = require('../controllers/auth');
 const { auth } = require('../middlewares/auth');
-const { addGames } = require('../controllers/games');
+const { addGames, getAllGames } = require('../controllers/games');
 const { uploadFile } = require('../middlewares/uploadFile');
 
 const router = express.Router();
@@ -18,5 +18,7 @@ router.get('/check-auth', auth, checkAuth);
 
 // Route Games
 router.post('/game', auth, uploadFile(), addGames);
+router.get('/games', auth, getAllGames);
+
 
 module.exports = router;
