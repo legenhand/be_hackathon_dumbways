@@ -5,7 +5,7 @@ const { addGames, getAllGames, getGameById, updateGame, deleteGame, getGameByUse
 const { uploadFile } = require('../middlewares/uploadFile');
 const { getAllGenre, getGenreById } = require('../controllers/genre');
 const { getAllPlatform, getPlatformById } = require('../controllers/platform');
-const { addReview } = require('../controllers/review');
+const { addReview, getReviewByGameId } = require('../controllers/review');
 
 const router = express.Router();
 
@@ -36,6 +36,8 @@ router.get('/platforms', auth, getAllPlatform);
 router.get('/platform/:id', auth, getPlatformById);
 
 // Route Reviews
-router.post('/games/:gameId/review', auth, addReview);
+router.post('/game/:gameId/review', auth, addReview);
+router.get('/game/:gameId/reviews', auth, getReviewByGameId);
+
 
 module.exports = router;

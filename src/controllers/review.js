@@ -85,3 +85,60 @@ exports.addReview = async(req, res) => {
         });
     }
 }
+
+exports.getReviewByGameId = async(req, res) => {
+    try {
+        const { gameId } = req.params;
+
+        const dataReview = await reviews.findAll({
+            where: {
+                gameId: gameId
+            },
+            include: [{
+                    model: game,
+                    as: "game",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    },
+                },
+                {
+                    model: user,
+                    as: "creator",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt", "password"]
+                    }
+                }
+            ],
+            attributes: {
+                exclude: ["createdAt", "updatedAt", "gameId", "createdBy"],
+            },
+        });
+        if (dataReview.length === 0) {
+            return res.status(404).send({
+                status: "not found",
+                message: "Review for this game is empty"
+            })
+        }
+
+        let data = JSON.parse(JSON.stringify(dataReview));
+        data = data.map(item => {
+            newItem = {
+                ...item,
+                createdBy: item.creator
+            }
+            delete newItem.creator;
+            return newItem;
+        })
+
+        res.send({
+            status: "success...",
+            data: data
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            status: "failed",
+            message: "Server Error",
+        });
+    }
+}
