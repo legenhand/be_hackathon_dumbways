@@ -110,6 +110,7 @@ exports.getAllGames = async(req, res) => {
             },
             where: filter
         });
+        console.log(data);
         data = JSON.parse(JSON.stringify(data));
         data = data.map(item => {
             let newItem = {
@@ -120,9 +121,9 @@ exports.getAllGames = async(req, res) => {
                 platform: item.platformName,
                 createdBy: item.creator,
             }
-            delete item.genreName;
-            delete item.platformName;
-            delete item.creator
+            delete newItem.genreName;
+            delete newItem.platformName;
+            delete newItem.creator
             return newItem;
         });
 
