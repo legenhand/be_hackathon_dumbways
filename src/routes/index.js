@@ -3,6 +3,7 @@ const { login, register, checkAuth } = require('../controllers/auth');
 const { auth } = require('../middlewares/auth');
 const { addGames, getAllGames, getGameById, updateGame, deleteGame, getGameByUserId } = require('../controllers/games');
 const { uploadFile } = require('../middlewares/uploadFile');
+const { getAllGenre, getGenreById } = require('../controllers/genre');
 
 const router = express.Router();
 
@@ -24,4 +25,7 @@ router.get('/my-games', auth, getGameByUserId);
 router.patch('/game/:id', auth, uploadFile(), updateGame);
 router.delete('/game/:id', auth, deleteGame);
 
+// Route Genre
+router.get('/genres', auth, getAllGenre);
+router.get('/genre/:id', auth, getGenreById);
 module.exports = router;
