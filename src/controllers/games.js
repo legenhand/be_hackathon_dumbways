@@ -1,4 +1,4 @@
-const { game, genre, platform, user, Sequelize } = require('../../models');
+const { game, genre, platform, user } = require('../../models');
 const Joi = require('joi');
 
 // POST addGames url /game method POST
