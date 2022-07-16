@@ -72,6 +72,7 @@ exports.addGames = async(req, res) => {
     }
 };
 
+// Get all games = url /Games method Get
 exports.getAllGames = async(req, res) => {
     try {
         let data = await game.findAll({
@@ -129,63 +130,8 @@ exports.getAllGames = async(req, res) => {
         })
     }
 }
-exports.getAllGames = async(req, res) => {
-    try {
-        let data = await game.findAll({
-            include: [{
-                    model: genre,
-                    as: "genreName",
-                    attributes: {
-                        exclude: ["createdAt", "updatedAt"]
-                    },
-                },
-                {
-                    model: platform,
-                    as: "platformName",
-                    attributes: {
-                        exclude: ["createdAt", "updatedAt"]
-                    }
-                },
-                {
-                    model: user,
-                    as: "creator",
-                    attributes: {
-                        exclude: ["createdAt", "updatedAt", "password"]
-                    }
-                }
-            ],
-            attributes: {
-                exclude: ["createdAt", "updatedAt", "genre", "platform", "createdBy"],
-            }
-        });
-        data = JSON.parse(JSON.stringify(data));
-        data = data.map(item => {
-            let newItem = {
-                ...item,
-                coverImage: process.env.PATH_FILE + item.coverImage,
-                screenshots: item.screenshots.split(";").filter(Boolean).map(i => process.env.PATH_FILE + i),
-                genre: item.genreName,
-                platform: item.platformName,
-                createdBy: item.creator,
-            }
-            delete item.genreName;
-            delete item.platformName;
-            delete item.creator
-            return newItem;
-        });
 
-        res.send({
-            status: "success",
-            data
-        })
-    } catch (e) {
-        console.log(e);
-        res.status(500).send({
-            status: "failed",
-            message: "server error"
-        })
-    }
-}
+// Get game by ID = url /Game/:id method Get 
 exports.getGameById = async(req, res) => {
     const { id } = req.params;
     try {
@@ -236,6 +182,99 @@ exports.getGameById = async(req, res) => {
         res.send({
             status: "success...",
             data: data
+        });
+    } catch (e) {
+        console.log(e);
+        res.status(500).send({
+            status: "failed",
+            message: "server error"
+        })
+    }
+}
+
+// update game by ID = url /Game/:id method patch 
+exports.updateGame = async(req, res) => {
+
+    try {
+        const { id } = req.params;
+
+        let data = await game.findOne({
+            where: {
+                id: id
+            },
+        });
+
+        if (!data) {
+            return res.send({
+                message: `game with ID: ${id} not found!`
+            })
+        }
+
+        if (data.createdBy != req.user.id) {
+            return res.send({
+                message: `user ${req.user.id} cannot update game with id : ${id}`
+            })
+        }
+        let screenshots = '';
+        req.files.screenshots.map(item => {
+            screenshots += item.filename + ';' //split with ;
+        });
+        await game.update({
+            ...req.body,
+            coverImage: req.files.coverImage[0].filename,
+            screenshots: screenshots,
+            createdBy: req.user.id
+        }, {
+            where: {
+                id: id
+            }
+        });
+        let newData = await game.findOne({
+            where: {
+                id: id
+            },
+            include: [{
+                    model: genre,
+                    as: "genreName",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    },
+                },
+                {
+                    model: platform,
+                    as: "platformName",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    }
+                },
+                {
+                    model: user,
+                    as: "creator",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt", "password"]
+                    }
+                }
+            ],
+            attributes: {
+                exclude: ["createdAt", "updatedAt", "genre", "platform", "createdBy"],
+            },
+        });
+        newData = JSON.parse(JSON.stringify(newData));
+        newData = {
+            ...newData,
+            coverImage: process.env.PATH_FILE + newData.coverImage,
+            screenshots: newData.screenshots.split(";").filter(Boolean).map(i => process.env.PATH_FILE + i),
+            genre: newData.genreName,
+            platform: newData.platformName,
+            createdBy: newData.creator,
+        }
+        delete newData.genreName;
+        delete newData.platformName;
+        delete newData.creator;
+
+        res.send({
+            status: "success...",
+            data: newData
         });
     } catch (e) {
         console.log(e);
