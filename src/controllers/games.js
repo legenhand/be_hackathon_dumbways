@@ -49,7 +49,8 @@ exports.addGames = async(req, res) => {
 
         data = {
             ...data,
-            screenshots: dataNewGames.screenshots.split(";").filter(Boolean),
+            coverImage: process.env.PATH_FILE + data.coverImage,
+            screenshots: dataNewGames.screenshots.split(";").filter(Boolean).map(i => process.env.PATH_FILE + i),
             genre: dataNewGames.genreName,
             platform: dataNewGames.platformName,
             createdBy: dataNewGames.creator,
