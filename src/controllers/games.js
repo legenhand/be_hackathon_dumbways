@@ -194,7 +194,6 @@ exports.getGameById = async(req, res) => {
 
 // update game by ID = url /Game/:id method patch 
 exports.updateGame = async(req, res) => {
-
     try {
         const { id } = req.params;
 
@@ -212,7 +211,7 @@ exports.updateGame = async(req, res) => {
 
         if (data.createdBy != req.user.id) {
             return res.send({
-                message: `user ${req.user.id} cannot update game with id : ${id}`
+                message: `user id : ${req.user.id} cannot update game with id : ${id}`
             })
         }
         let screenshots = '';
@@ -275,6 +274,50 @@ exports.updateGame = async(req, res) => {
         res.send({
             status: "success...",
             data: newData
+        });
+    } catch (e) {
+        console.log(e);
+        res.status(500).send({
+            status: "failed",
+            message: "server error"
+        })
+    }
+}
+
+
+// delete game by ID = url /game/:id method delete
+exports.deleteGame = async(req, res) => {
+    try {
+        const { id } = req.params;
+
+        let data = await game.findOne({
+            where: {
+                id: id
+            },
+        });
+
+        if (!data) {
+            return res.send({
+                status: 'not found',
+                message: `game with ID: ${id} not found!`
+            })
+        }
+
+        if (data.createdBy != req.user.id) {
+            return res.send({
+                status: 'restricted',
+                message: `user id : ${req.user.id} cannot delete game with id : ${id}`
+            })
+        }
+
+        await game.destroy({
+            where: {
+                id: id
+            }
+        });
+        res.send({
+            status: "success...",
+            data: "game successfully deleted"
         });
     } catch (e) {
         console.log(e);
