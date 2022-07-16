@@ -22,7 +22,6 @@ exports.addReview = async(req, res) => {
     }
 
     try {
-
         const isReviewExists = await reviews.findOne({
             where: {
                 gameId: gameId,
@@ -130,6 +129,74 @@ exports.getReviewByGameId = async(req, res) => {
             return newItem;
         })
 
+        res.send({
+            status: "success...",
+            data: data
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            status: "failed",
+            message: "Server Error",
+        });
+    }
+}
+
+exports.updateReview = async(req, res) => {
+    try {
+        const { gameId } = req.params;
+        const isReviewExists = await reviews.findOne({
+            where: {
+                gameId: gameId,
+                createdBy: req.user.id
+            }
+        });
+
+        if (!isReviewExists) {
+            res.status(500).send({
+                status: 'failed',
+                message: 'Review doesnt Exists!',
+            });
+            return;
+        }
+
+        const newReview = await reviews.update({
+            ...req.body,
+        }, {
+            where: {
+                id: isReviewExists.id
+            }
+        });
+        const dataNewReview = await reviews.findOne({
+            where: {
+                gameId: gameId,
+                createdBy: req.user.id
+            },
+            include: [{
+                    model: game,
+                    as: "game",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    },
+                },
+                {
+                    model: user,
+                    as: "creator",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt", "password"]
+                    }
+                }
+            ],
+            attributes: {
+                exclude: ["createdAt", "updatedAt", "gameId", "createdBy"],
+            },
+        });
+        let data = JSON.parse(JSON.stringify(dataNewReview));
+        data = {
+            ...data,
+            createdBy: data.creator
+        }
+        delete data.creator;
         res.send({
             status: "success...",
             data: data
