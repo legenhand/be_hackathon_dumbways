@@ -307,13 +307,20 @@ exports.updateGame = async(req, res) => {
                 message: `cannot update this game`
             })
         }
+
+
         let screenshots = '';
-        req.files.screenshots.map(item => {
-            screenshots += item.filename + ';' //split with ;
-        });
+        if (req.files.screenshots) {
+            req.files.screenshots.map(item => {
+                screenshots += item.filename + ';' //split with ;
+            });
+        } else {
+            screenshots = data.screenshots;
+        }
+
         await game.update({
             ...req.body,
-            coverImage: req.files.coverImage[0].filename,
+            coverImage: req.files.coverImage ? req.files.coverImage[0].filename : data.coverImage,
             screenshots: screenshots,
             createdBy: req.user.id
         }, {
