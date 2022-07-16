@@ -1,8 +1,28 @@
 const { game, genre, platform, user, Sequelize } = require('../../models');
-
+const Joi = require('joi');
 
 // POST addGames url /game method POST
 exports.addGames = async(req, res) => {
+    // our validation schema here
+    const schema = Joi.object({
+        title: Joi.string().required(),
+        description: Joi.string().required(),
+        genre: Joi.string().required(),
+        platform: Joi.string().required(),
+        gameUrl: Joi.string().required(),
+    });
+    // do validation and get error object from schema.validate
+    const { error } = schema.validate(req.body);
+
+    // if error exist send validation error message
+    if (error) {
+        return res.status(400).send({
+            error: {
+                message: error.details[0].message,
+            },
+        });
+    }
+
     try {
         let screenshots = "";
         req.files.screenshots.map(item => {

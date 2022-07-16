@@ -1,7 +1,7 @@
 // import package here
 const multer = require('multer');
 
-exports.uploadFile = () => {
+exports.uploadFile = (isCreate) => {
     // Destination and rename
     const storage = multer.diskStorage({
         destination: function(req, file, cb) {
@@ -56,11 +56,20 @@ exports.uploadFile = () => {
             }
 
             // If file empty
-            if (!req.files && !err) {
-                return res.send({
-                    message: 'Please select files to upload!'
-                })
+            if (isCreate) {
+                if (!req.files.coverImage && !err) {
+                    return res.status(400).send({
+                        message: 'Please select files cover image to upload!'
+                    })
+                }
+
+                if (!req.files.screenshots && !err) {
+                    return res.status(400).send({
+                        message: 'Please select files screenshots to upload!'
+                    })
+                }
             }
+
 
             // Limit
             if (err) {

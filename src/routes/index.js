@@ -19,7 +19,7 @@ router.get('/check-auth', auth, checkAuth);
 
 
 // Route Games
-router.post('/game', auth, uploadFile(), addGames);
+router.post('/game', auth, uploadFile(isCreate = true), addGames);
 router.get('/games', auth, getAllGames);
 router.get('/game/:id', auth, getGameById);
 router.get('/my-games', auth, getGameByUserId);
