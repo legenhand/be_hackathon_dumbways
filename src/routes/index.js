@@ -4,6 +4,7 @@ const { auth } = require('../middlewares/auth');
 const { addGames, getAllGames, getGameById, updateGame, deleteGame, getGameByUserId } = require('../controllers/games');
 const { uploadFile } = require('../middlewares/uploadFile');
 const { getAllGenre, getGenreById } = require('../controllers/genre');
+const { getAllPlatform, getPlatformById } = require('../controllers/platform');
 
 const router = express.Router();
 
@@ -28,4 +29,10 @@ router.delete('/game/:id', auth, deleteGame);
 // Route Genre
 router.get('/genres', auth, getAllGenre);
 router.get('/genre/:id', auth, getGenreById);
+
+// Route platform
+router.get('/platforms', auth, getAllPlatform);
+router.get('/platform/:id', auth, getPlatformById);
+
+
 module.exports = router;
