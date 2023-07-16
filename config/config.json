@@ -1,8 +1,8 @@
 {
     "development": {
         "username": "root",
-        "password": "pisang720",
-        "database": "hackathon_dw",
+        "password": null,
+        "database": "ruang_games",
         "host": "127.0.0.1",
         "dialect": "mysql"
     },
